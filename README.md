@@ -90,7 +90,7 @@ We have a collection of workouts, challenges, and plans from which you can selec
 a. To display individual workout, please use our `KinesteXAIFramework.createWorkoutView` function. 
 
 Here is the usage of this function:
-```
+```dart
 Widget createWorkoutView() {
     return Center(
       child: KinesteXAIFramework.createWorkoutView(
@@ -110,7 +110,7 @@ Widget createWorkoutView() {
 b. To display individual challenge, please use our  `KinesteXAIFramework.createChallengeView`
 
 Here is the usage of this function:
-```
+```dart
 Widget createChallengeView() {
     return Center(
       child: KinesteXAIFramework.createChallengeView(
@@ -132,7 +132,7 @@ Widget createChallengeView() {
 c. To display individual workout plan, please use our `KinesteXAIFramework.createPlanView`
 
 And the usage of this function is as following: 
-```
+```dart
 Widget createPlanView() {
     return Center(
       child: KinesteXAIFramework.createPlanView(
@@ -155,7 +155,7 @@ Widget createPlanView() {
 We send the data to you as a value of a WebViewMessage class where we have different values depending on the current use case in our platform. 
 The list of available data points is below, they will be passed as following instances: 
 
-```
+```dart
 factory WebViewMessage.fromJson(Map<String, dynamic> json) {
     final type = json['type'] as String;
 
@@ -205,8 +205,8 @@ class KinestexLaunched extends WebViewMessage {
 
 To handle the statistics data, you can use ExerciseOverview (complete log, exercise by exercise of how many reps have been done, how many calories burnt, seconds spent, and mistakes made) and WorkoutOverview (overall total reps, percentage completed, calories burnt, mistakes made, time spent) classes. 
 
-1.  Process the post message for exercise_overview and workout_overview by creating a model class to store and process the values: 
-```
+1.  Process the post message for exercise_overview and workout_overview by creating model classes to store and process the values: 
+```dart
 // exercise_overview class
 class ExerciseOverviewData {
   final String type;
@@ -334,7 +334,7 @@ class WorkoutData {
 ```
 
 2. Create value notifiers for real-time updated from ExerciseOverview and WorkoutOverview post messages: 
-```
+```dart
 final ValueNotifier<ExerciseOverviewData> currentExerciseOverviewNotifier =
       ValueNotifier<ExerciseOverviewData>(ExerciseOverviewData.emptyData());
   final ValueNotifier<WorkoutOverviewData> currentWorkoutOverviewNotifier =
@@ -343,7 +343,7 @@ final ValueNotifier<ExerciseOverviewData> currentExerciseOverviewNotifier =
 
 ```
 3. Handle the incoming post message:
-```
+```dart
 void handleWebViewMessage(WebViewMessage message) {
     if (message is ExitKinestex) {
       setState(() {
