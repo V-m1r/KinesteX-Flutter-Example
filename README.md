@@ -82,173 +82,33 @@ void _showCameraAccessDeniedAlert() {
    );
 }
 ```
+## 1. Selecting workouts, challenges, and plans
+We have a collection of workouts, challenges, and plans from which you can select to display to your users. Please view available routines here: https://kinestex-plans.vercel.app/
 
-### Integration Options
+## 2. Displaying workouts, challenges, and plans
 
-| **functions**             | **Description**                                                 |
-|---------------------------|-----------------------------------------------------------------|
-| **createMainView**        | Integration of our Complete UX                                  |
-| **createPlanView**        | Integration of Individual Plan Component                        |
-| **createWorkoutView**     | Integration of Individual Workout Component                     |
-| **createChallengeView**   | Integration of Individual Exercise in a challenge form          |
-| **createCameraComponent** | Integration of our camera component with pose-analysis and feedback |
+a. To display individual workout, please use our `KinesteXAIFramework.createWorkoutView` function. 
 
-### Available Categories to Sort Plans
-
-| **Plan Category (key: planCategory)** |
-|---------------------------------------|
-| **Strength**                          |
-| **Cardio**                            |
-| **Weight Management**                 |
-| **Rehabilitation**                    |
-
-### Example Integration
-
-1. Create a handleMessage function to process messages from KinesteX SDK:
-
-```dart
-ValueNotifier<bool> showKinesteX = ValueNotifier<bool>(false);
-
-void handleWebViewMessage(WebViewMessage message) {
-   switch (message.type) {
-      case 'exit_kinestex':
-      // hide KinesteX view
-         showKinesteX.value = false;
-         break;
-   // Handle all other cases as needed
-      default:
-         log('Other message: ${message.data}');
-   }
-}
+Here is the usage of this function:
 ```
+Widget createWorkoutView() {
+    return Center(
+      child: KinesteXAIFramework.createWorkoutView(
+          apiKey: apiKey,
+          isShowKinesTex: showKinesteX,
+          companyName: company,
+          userId: userId,
+          workoutName: selectedWorkoutName!, // the name of the workout which you can find by following the link above https://kinestex-plans.vercel.app
+          isLoading: ValueNotifier<bool>(false),
+          onMessageReceived: (message) {
+            handleWebViewMessage(message);
+          }),
+    );
+  }
 
-2. Display KinesteX with Main Integration Option:
-
-```dart
-KinesteXAIFramework.createMainView(
-apiKey: 'YOUR API KEY',
-companyName: 'YOUR COMPANY',
-userId: 'YOUR USER ID',
-planCategory: PlanCategory.Cardio, // pass the plan category
-isShowKinesTex: showKinesteX,
-isLoading: ValueNotifier<bool>(false),
-onMessageReceived: handleWebViewMessage,
-);
 ```
+b. To display individual challenge, please use our  ``
 
-### Examples for Each Integration Option
-
-**Individual Plan**
-
-```dart
-KinesteXAIFramework.createPlanView(
-apiKey: 'YOUR API KEY',
-companyName: 'YOUR COMPANY',
-userId: 'YOUR USER ID',
-planName: 'Circuit Training', // pass the name of the plan
-isShowKinesTex: showKinesteX,
-isLoading: ValueNotifier<bool>(false),
-onMessageReceived: handleWebViewMessage,
-);
-```
-
-**Individual Workout**
-
-```dart
-KinesteXAIFramework.createWorkoutView(
-apiKey: 'YOUR API KEY',
-companyName: 'YOUR COMPANY',
-userId: 'YOUR USER ID',
-workoutName: 'Circuit Training', // pass the name of the workout
-isShowKinesTex: showKinesteX,
-isLoading: ValueNotifier<bool>(false),
-onMessageReceived: handleWebViewMessage,
-);
-```
-
-**Challenge Component**
-
-1. Change `postData`:
-
-```dart
-const postData = {
-   'key': apiKey,
-   'userId': 'YOUR USER ID',
-   'company': 'YOUR COMPANY NAME',
-   'exercise': 'Squats',
-   'countdown': 100,
-};
-```
-
-2. Change integration option in KinesteXSDK:
-
-```dart
-KinesteXAIFramework.createChallengeView(
-apiKey: 'YOUR API KEY',
-companyName: 'YOUR COMPANY',
-userId: 'YOUR USER ID',
-exercise: 'Squats', // pass the name of the challenge exercise
-countdown: 100, // duration of the challenge in seconds
-isShowKinesTex: showKinesteX,
-isLoading: ValueNotifier<bool>(false),
-onMessageReceived: handleWebViewMessage,
-);
-```
-
-**Camera Component**
-
-1. Change `postData`:
-
-```dart
-const postData = {
-   'key': apiKey,
-   'userId': 'YOUR USER ID',
-   'company': 'YOUR COMPANY NAME',
-   'currentExercise': 'Squats',
-   'exercises': ['Squats', 'Jumping Jack'],
-};
-```
-
-2. Changing current exercise:
-
-```dart
-void changeExercise() {
-   updateExercise.value = 'Jumping Jack';
-}
-```
-
-3. Displaying KinesteXSDK:
-
-```dart
-KinesteXAIFramework.createCameraComponent(
-apiKey: 'YOUR API KEY',
-companyName: 'YOUR COMPANY',
-userId: 'YOUR USER ID',
-exercises: ['Squats', 'Jumping Jack'],
-currentExercise: 'Squats',
-isShowKinesTex: showKinesteX,
-isLoading: ValueNotifier<bool>(false),
-onMessageReceived: handleWebViewMessage,
-updatedExercise: updateExercise.value,
-);
-```
-
-4. Handle message for reps and mistakes a person has done:
-
-```dart
-void handleWebViewMessage(WebViewMessage message) {
-   switch (message.type) {
-      case 'reps':
-         reps.value = message.data['value'] ?? 0;
-         break;
-      case 'mistake':
-         mistake.value = message.data['value'] ?? '--';
-         break;
-      default:
-         log('Other message: ${message.data}');
-   }
-}
-```
 
 ## Data Points
 
