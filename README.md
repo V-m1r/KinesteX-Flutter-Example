@@ -107,7 +107,273 @@ Widget createWorkoutView() {
   }
 
 ```
-b. To display individual challenge, please use our  ``
+b. To display individual challenge, please use our  `KinesteXAIFramework.createChallengeView`
+
+Here is the usage of this function:
+```
+Widget createChallengeView() {
+    return Center(
+      child: KinesteXAIFramework.createChallengeView(
+          apiKey: apiKey,
+          companyName: company,
+          isShowKinesTex: showKinesteX,
+          userId: userId,
+          exercise: selectedChallenge!, // exercise name to be presented as a challenge
+          countdown: 100, // countdown for the challenge
+          isLoading: ValueNotifier<bool>(false),
+          onMessageReceived: (message) {
+            handleWebViewMessage(message);
+          }),
+    );
+  }
+
+```
+
+c. To display individual workout plan, please use our `KinesteXAIFramework.createPlanView`
+
+And the usage of this function is as following: 
+```
+Widget createPlanView() {
+    return Center(
+      child: KinesteXAIFramework.createPlanView(
+          apiKey: apiKey,
+          companyName: company,
+          userId: userId,
+          isShowKinesTex: showKinesteX,
+          planName: selectedPlanName!, // plan name to be presented 
+          isLoading: ValueNotifier<bool>(false),
+          onMessageReceived: (message) {
+            handleWebViewMessage(message);
+          }),
+    );
+  }
+
+```
+
+## 3. Processing the data:
+
+We send the data to you as a value of a WebViewMessage class where we have different values depending on the current use case in our platform. 
+The list of available data points is below, they will be passed as following instances: 
+
+```
+factory WebViewMessage.fromJson(Map<String, dynamic> json) {
+    final type = json['type'] as String;
+
+    switch (type) {
+      case 'kinestex_launched':
+        return KinestexLaunched(json); 
+      case 'finished_workout':
+        return FinishedWorkout(json);
+      case 'error_occurred':
+        return ErrorOccurred(json);
+      case 'exercise_completed':
+        return ExerciseCompleted(json);
+      case 'exit_kinestex':
+        return ExitKinestex(json);
+      case 'workout_opened':
+        return WorkoutOpened(json);
+      case 'workout_started':
+        return WorkoutStarted(json);
+      case 'plan_unlocked':
+        return PlanUnlocked(json);
+      case 'mistake':
+        return Mistake(json);
+      case 'successful_repeat':
+        return Reps(json);
+      case 'left_camera_frame':
+        return LeftCameraFrame(json);
+      case 'returned_camera_frame':
+        return ReturnedCameraFrame(json);
+      case 'workout_overview':
+        return WorkoutOverview(json);
+      case 'exercise_overview':
+        return ExerciseOverview(json);
+      case 'workout_completed':
+        return WorkoutCompleted(json);
+      default:
+        return CustomType(json);
+    }
+}
+
+class KinestexLaunched extends WebViewMessage {
+  const KinestexLaunched(Map<String, dynamic> data) : super(data);
+}
+
+// ...
+
+```
+
+To handle the statistics data, you can use ExerciseOverview (complete log, exercise by exercise of how many reps have been done, how many calories burnt, seconds spent, and mistakes made) and WorkoutOverview (overall total reps, percentage completed, calories burnt, mistakes made, time spent) classes. 
+
+1.  Process the post message for exercise_overview and workout_overview by creating a model class to store and process the values: 
+```
+// exercise_overview class
+class ExerciseOverviewData {
+  final String type;
+  final List<ExerciseData> data;
+
+  ExerciseOverviewData({required this.type, required this.data});
+
+  factory ExerciseOverviewData.fromJson(Map<String, dynamic> json) {
+    return ExerciseOverviewData(
+      type: json['type'],
+      data: (json['data'] as List).map((e) => ExerciseData.fromJson(e)).toList(),
+    );
+  }
+  static ExerciseOverviewData emptyData() {
+    return ExerciseOverviewData(type: '', data: []);
+  }
+}
+
+class ExerciseData {
+  final int timeSpent;
+  final int repeats;
+  final double calories;
+  final String exercise;
+  final List<Mistake> mistakes;
+
+  ExerciseData({
+    required this.timeSpent,
+    required this.repeats,
+    required this.calories,
+    required this.exercise,
+    required this.mistakes,
+  });
+
+  factory ExerciseData.fromJson(Map<String, dynamic> json) {
+    return ExerciseData(
+      timeSpent: json['time_spent'],
+      repeats: json['repeats'],
+      calories: json['calories'].toDouble(),
+      exercise: json['exercise'],
+      mistakes: (json['mistakes'] as List).map((e) => Mistake.fromJson(e)).toList(),
+    );
+  }
+}
+
+
+
+class Mistake {
+  final String description;
+  final int count;
+
+  Mistake({required this.description, required this.count});
+
+  factory Mistake.fromJson(Map<String, dynamic> json) {
+    final entry = json.entries.first;
+    return Mistake(
+      description: entry.key,
+      count: entry.value,
+    );
+  }
+}
+
+
+// workout_overview class:
+
+class WorkoutOverviewData {
+  final String type;
+  final WorkoutData data;
+
+  WorkoutOverviewData({required this.type, required this.data});
+
+  factory WorkoutOverviewData.fromJson(Map<String, dynamic> json) {
+    return WorkoutOverviewData(
+      type: json['type'],
+      data: WorkoutData.fromJson(json['data']),
+    );
+  }
+  static WorkoutOverviewData emptyData() {
+    return WorkoutOverviewData(
+      type: '',
+      data: WorkoutData.emptyData(),
+    );
+  }
+}
+
+class WorkoutData {
+  final String workout;
+  final int totalTimeSpent;
+  final int totalRepeats;
+  final double totalCalories;
+  final double percentageCompleted;
+  final int totalMistakes;
+
+  WorkoutData({
+    required this.workout,
+    required this.totalTimeSpent,
+    required this.totalRepeats,
+    required this.totalCalories,
+    required this.percentageCompleted,
+    required this.totalMistakes,
+  });
+
+  factory WorkoutData.fromJson(Map<String, dynamic> json) {
+    return WorkoutData(
+      workout: json['workout'],
+      totalTimeSpent: json['total_time_spent'],
+      totalRepeats: json['total_repeats'],
+      totalCalories: json['total_calories'],
+      percentageCompleted: json['percentage_completed'],
+      totalMistakes: json['total_mistakes'],
+    );
+  }
+  static WorkoutData emptyData() {
+    return WorkoutData(
+      workout: 'No Workout',
+      totalTimeSpent: 0,
+      totalRepeats: 0,
+      totalCalories: 0.0,
+      percentageCompleted: 0.0,
+      totalMistakes: 0,
+    );
+  }
+}
+
+
+```
+
+2. Create value notifiers for real-time updated from ExerciseOverview and WorkoutOverview post messages: 
+```
+final ValueNotifier<ExerciseOverviewData> currentExerciseOverviewNotifier =
+      ValueNotifier<ExerciseOverviewData>(ExerciseOverviewData.emptyData());
+  final ValueNotifier<WorkoutOverviewData> currentWorkoutOverviewNotifier =
+      ValueNotifier<WorkoutOverviewData>(WorkoutOverviewData.emptyData());
+
+
+```
+3. Handle the incoming post message:
+```
+void handleWebViewMessage(WebViewMessage message) {
+    if (message is ExitKinestex) {
+      setState(() {
+        showKinesteX.value = false;
+      });
+    } else if (message is ExerciseOverview) {
+      ExerciseOverviewData exerciseOverview =
+          ExerciseOverviewData.fromJson(message.data);
+
+      List<ExerciseData> filteredData = exerciseOverview.data
+          .where((exercise) => exercise.timeSpent > 0)
+          .toList();
+
+      ExerciseOverviewData filteredExerciseOverview =
+          ExerciseOverviewData(type: exerciseOverview.type, data: filteredData);
+
+      currentExerciseOverviewNotifier.value = filteredExerciseOverview;
+    } else if (message is WorkoutOverview) {
+      WorkoutOverviewData workoutOverview =
+          WorkoutOverviewData.fromJson(message.data);
+      currentWorkoutOverviewNotifier.value = workoutOverview;
+    } else {
+      print("Other message received: ${message.data}");
+    }
+  }
+
+```
+
+## 4. You can choose to display the processed data however you want easily. Please refer to the example [here](https://github.com/V-m1r/KinesteX-Flutter-Example/blob/main/lib/views/expandable_stats_card.dart)
+
 
 
 ## Data Points
