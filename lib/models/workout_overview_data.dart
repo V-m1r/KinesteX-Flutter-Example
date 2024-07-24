@@ -6,10 +6,11 @@ class WorkoutOverviewData {
 
   factory WorkoutOverviewData.fromJson(Map<String, dynamic> json) {
     return WorkoutOverviewData(
-      type: json['type'],
-      data: WorkoutData.fromJson(json['data']),
+      type: json['type'] ?? '',
+      data: WorkoutData.fromJson(json['data'] ?? {}),
     );
   }
+
   static WorkoutOverviewData emptyData() {
     return WorkoutOverviewData(
       type: '',
@@ -37,14 +38,15 @@ class WorkoutData {
 
   factory WorkoutData.fromJson(Map<String, dynamic> json) {
     return WorkoutData(
-      workout: json['workout'],
-      totalTimeSpent: json['total_time_spent'],
-      totalRepeats: json['total_repeats'],
-      totalCalories: json['total_calories'],
-      percentageCompleted: json['percentage_completed'],
-      totalMistakes: json['total_mistakes'],
+      workout: json['workout'] ?? 'No Workout',
+      totalTimeSpent: json['total_time_spent'] ?? 0,
+      totalRepeats: json['total_repeats'] ?? 0,
+      totalCalories: (json['total_calories'] as num?)?.toDouble() ?? 0.0,
+      percentageCompleted: (json['percentage_completed'] as num?)?.toDouble() ?? 0.0,
+      totalMistakes: json['total_mistakes'] ?? 0,
     );
   }
+
   static WorkoutData emptyData() {
     return WorkoutData(
       workout: 'No Workout',

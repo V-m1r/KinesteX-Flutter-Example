@@ -6,10 +6,14 @@ class ExerciseOverviewData {
 
   factory ExerciseOverviewData.fromJson(Map<String, dynamic> json) {
     return ExerciseOverviewData(
-      type: json['type'],
-      data: (json['data'] as List).map((e) => ExerciseData.fromJson(e)).toList(),
+      type: json['type'] ?? '',
+      data: (json['data'] as List<dynamic>?)
+          ?.map((e) => ExerciseData.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+          [],
     );
   }
+
   static ExerciseOverviewData emptyData() {
     return ExerciseOverviewData(type: '', data: []);
   }
@@ -32,28 +36,29 @@ class ExerciseData {
 
   factory ExerciseData.fromJson(Map<String, dynamic> json) {
     return ExerciseData(
-      timeSpent: json['time_spent'],
-      repeats: json['repeats'],
-      calories: json['calories'].toDouble(),
-      exercise: json['exercise'],
-      mistakes: (json['mistakes'] as List).map((e) => Mistake.fromJson(e)).toList(),
+      timeSpent: json['time_spent'] ?? 0,
+      repeats: json['repeats'] ?? 0,
+      calories: (json['calories'] as num?)?.toDouble() ?? 0.0,
+      exercise: json['exercise'] ?? '',
+      mistakes: (json['mistakes'] as List<dynamic>?)
+          ?.map((e) => Mistake.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+          [],
     );
   }
 }
 
-
-
 class Mistake {
-  final String description;
+  final String name;
   final int count;
 
-  Mistake({required this.description, required this.count});
+  Mistake({required this.name, required this.count});
 
   factory Mistake.fromJson(Map<String, dynamic> json) {
     final entry = json.entries.first;
     return Mistake(
-      description: entry.key,
-      count: entry.value,
+      name: entry.key,
+      count: (entry.value as num?)?.toInt() ?? 0,
     );
   }
 }
