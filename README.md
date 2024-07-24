@@ -216,10 +216,14 @@ class ExerciseOverviewData {
 
   factory ExerciseOverviewData.fromJson(Map<String, dynamic> json) {
     return ExerciseOverviewData(
-      type: json['type'],
-      data: (json['data'] as List).map((e) => ExerciseData.fromJson(e)).toList(),
+      type: json['type'] ?? '',
+      data: (json['data'] as List<dynamic>?)
+          ?.map((e) => ExerciseData.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+          [],
     );
   }
+
   static ExerciseOverviewData emptyData() {
     return ExerciseOverviewData(type: '', data: []);
   }
@@ -242,35 +246,34 @@ class ExerciseData {
 
   factory ExerciseData.fromJson(Map<String, dynamic> json) {
     return ExerciseData(
-      timeSpent: json['time_spent'],
-      repeats: json['repeats'],
-      calories: json['calories'].toDouble(),
-      exercise: json['exercise'],
-      mistakes: (json['mistakes'] as List).map((e) => Mistake.fromJson(e)).toList(),
+      timeSpent: json['time_spent'] ?? 0,
+      repeats: json['repeats'] ?? 0,
+      calories: (json['calories'] as num?)?.toDouble() ?? 0.0,
+      exercise: json['exercise'] ?? '',
+      mistakes: (json['mistakes'] as List<dynamic>?)
+          ?.map((e) => Mistake.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+          [],
     );
   }
 }
 
-
-
 class Mistake {
-  final String description;
+  final String name;
   final int count;
 
-  Mistake({required this.description, required this.count});
+  Mistake({required this.name, required this.count});
 
   factory Mistake.fromJson(Map<String, dynamic> json) {
     final entry = json.entries.first;
     return Mistake(
-      description: entry.key,
-      count: entry.value,
+      name: entry.key,
+      count: (entry.value as num?)?.toInt() ?? 0,
     );
   }
 }
 
-
 // workout_overview class:
-
 class WorkoutOverviewData {
   final String type;
   final WorkoutData data;
@@ -279,10 +282,11 @@ class WorkoutOverviewData {
 
   factory WorkoutOverviewData.fromJson(Map<String, dynamic> json) {
     return WorkoutOverviewData(
-      type: json['type'],
-      data: WorkoutData.fromJson(json['data']),
+      type: json['type'] ?? '',
+      data: WorkoutData.fromJson(json['data'] ?? {}),
     );
   }
+
   static WorkoutOverviewData emptyData() {
     return WorkoutOverviewData(
       type: '',
@@ -310,14 +314,15 @@ class WorkoutData {
 
   factory WorkoutData.fromJson(Map<String, dynamic> json) {
     return WorkoutData(
-      workout: json['workout'],
-      totalTimeSpent: json['total_time_spent'],
-      totalRepeats: json['total_repeats'],
-      totalCalories: json['total_calories'],
-      percentageCompleted: json['percentage_completed'],
-      totalMistakes: json['total_mistakes'],
+      workout: json['workout'] ?? 'No Workout',
+      totalTimeSpent: json['total_time_spent'] ?? 0,
+      totalRepeats: json['total_repeats'] ?? 0,
+      totalCalories: (json['total_calories'] as num?)?.toDouble() ?? 0.0,
+      percentageCompleted: (json['percentage_completed'] as num?)?.toDouble() ?? 0.0,
+      totalMistakes: json['total_mistakes'] ?? 0,
     );
   }
+
   static WorkoutData emptyData() {
     return WorkoutData(
       workout: 'No Workout',
@@ -329,7 +334,6 @@ class WorkoutData {
     );
   }
 }
-
 
 ```
 
